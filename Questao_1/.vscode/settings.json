@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "hanoi.h": "c",
+        "time.h": "c",
+        "stdbool.h": "c",
+        "stdio.h": "c",
+        "string.h": "c"
+    }
+}
