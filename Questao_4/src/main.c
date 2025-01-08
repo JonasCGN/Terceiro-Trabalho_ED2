@@ -59,30 +59,33 @@ void rotacaoDoisDigito(char *palavra){
 	temp[0] = p1;
 	temp[1] = p2;
 
-	strcpy(palavra,temp);
+	strcpy(palavra,	(char[]){temp[1], temp[3], temp[5],'\0'});
 }
 
 int colisaoA(int resto,char *palavra){
 	return resto + numChar(palavra[0]);
 }
 
+// 	 Função Hashing: rotação de 2 dígitos para a esquerda depois extrai o 2o, 4o e 6o dígitos e obtenha o resto
+// da divisão pelo tamanho do vetor destino. As colisões devem ser tratadas somando ao resto da divisão o
+// primeiro dígito da matrícula.
 int funcaoHashingA(char *palavra,int tamanho){
 	char temp[6];
-	// 	 Função Hashing: rotação de 2 dígitos para a esquerda depois extrai o 2o, 4o e 6o dígitos e obtenha o resto
-	// da divisão pelo tamanho do vetor destino. As colisões devem ser tratadas somando ao resto da divisão o
-	// primeiro dígito da matrícula.
+
 	strcpy(temp,palavra);
 	rotacaoDoisDigito(temp);
+
+	int posicao = atoi(temp) % tamanho;
 	
-	return atoi((char[]){temp[1], temp[3], temp[5]}) % tamanho;
+	return posicao;
 }
 
-int foldShift(char *palavra,int tamanho){
+int foldShift(char *palavra){
 	return (atoi((char[]){palavra[0],palavra[2],palavra[5]}) + 
 		atoi((char[]){palavra[1],palavra[3],palavra[4]}));	
 }
 
-void colisaoB(int num){
+int colisaoB(int num){
 	return num + 7;
 }
 
@@ -90,7 +93,7 @@ int funcaoHashingB(char *palavra,int tamanho){
 	// 	(b) Função Hashing: fole shift com 3 dígitos da seguinte forma: o 1o, 3 e 6o; 2o, 4o e 5o, depois obtenha o
 	// resto da divisão do resultado pelo tamanho do vetor destino. As colisões devem ser realizadas somando
 	// 7 ao valor obtido.
-	return foldShift(palavra,tamanho) % tamanho;
+	return foldShift(palavra) % tamanho;
 }
 
 int main(){
@@ -101,7 +104,6 @@ int main(){
 
 	exibirInfo(funcionarios[0]);
 	printf("%d\n",funcaoHashingA(funcionarios[0].matricula,QTD_POSICAO_A));
-	exibirInfo(funcionarios[0]);
-
+	exibirInfo(funcionarios[0]);	
 	return 0;
 }
