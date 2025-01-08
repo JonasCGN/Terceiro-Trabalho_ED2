@@ -4,8 +4,12 @@
 #include <ctype.h>
 
 #define QTD_FUNC 1000
-#define QTD_POSICAO 101
-// #define QTD_POSICAO 150
+#define QTD_POSICAO_A 101
+// #define QTD_POSICAO_B 150
+
+int numChar(char letra){
+	return letra - '0';
+}
 
 typedef struct funcionario{
 	char matricula[7];
@@ -37,8 +41,8 @@ void exibirInfo(Funcionario funcionario){
 	printf("------------------------------------\n");
 }
 
-void exibirFuncionarios(Funcionario *funcionario){
-	for(int i=0;i<QTD_POSICAO;i++){
+void exibirFuncionarios(Funcionario *funcionario,int tamanho){
+	for(int i=0;i<tamanho;i++){
 		exibirInfo(funcionario[i]);
 	}
 }
@@ -46,49 +50,47 @@ void exibirFuncionarios(Funcionario *funcionario){
 void rotacaoDoisDigito(char *palavra){
 	char p1=palavra[4],p2=palavra[5];
 
-	char temp[3];
+	char temp[6];
 
-	temp[0] = palavra[2];
-	palavra[2] = palavra[0];
+	for(int i=0,j=2;i<4;i++,j++){
+		temp[j] = palavra[i];
+	}
+	
+	temp[0] = p1;
+	temp[1] = p2;
 
-	temp[1] = palavra[3];
-	palavra[3] = palavra[1];
-
-	temp[2] = palavra[4];
-	palavra[4] = temp[0];
-
-	palavra[5] = temp[1];
-
-	palavra[0] = p1;
-	palavra[1] = p2;
+	strcpy(palavra,temp);
 }
 
-void colisaoA(){
-
+int colisaoA(int resto,char *palavra){
+	return resto + numChar(palavra[0]);
 }
 
-int funcaoHashingA(char *palavra){
+int funcaoHashingA(char *palavra,int tamanho){
+	char temp[6];
 	// 	 Função Hashing: rotação de 2 dígitos para a esquerda depois extrai o 2o, 4o e 6o dígitos e obtenha o resto
 	// da divisão pelo tamanho do vetor destino. As colisões devem ser tratadas somando ao resto da divisão o
 	// primeiro dígito da matrícula.
-	rotacaoDoisDigito(palavra);
-
-	return atoi((char[]){palavra[1], palavra[3], palavra[5]}) % QTD_POSICAO;
-
-}
-
-// void foldShifit(char *palavra){
-
-// }
-
-void colisaoB(){
+	strcpy(temp,palavra);
+	rotacaoDoisDigito(temp);
 	
+	return atoi((char[]){temp[1], temp[3], temp[5]}) % tamanho;
 }
 
-void funcaoHashingB(){
+int foldShift(char *palavra,int tamanho){
+	return (atoi((char[]){palavra[0],palavra[2],palavra[5]}) + 
+		atoi((char[]){palavra[1],palavra[3],palavra[4]}));	
+}
+
+void colisaoB(int num){
+	return num + 7;
+}
+
+int funcaoHashingB(char *palavra,int tamanho){
 	// 	(b) Função Hashing: fole shift com 3 dígitos da seguinte forma: o 1o, 3 e 6o; 2o, 4o e 5o, depois obtenha o
 	// resto da divisão do resultado pelo tamanho do vetor destino. As colisões devem ser realizadas somando
 	// 7 ao valor obtido.
+	return foldShift(palavra,tamanho) % tamanho;
 }
 
 int main(){
@@ -98,7 +100,7 @@ int main(){
 	// exibirFuncionarios(funcionarios);
 
 	exibirInfo(funcionarios[0]);
-	printf("%d",funcaoHashingA(funcionarios[0].matricula));
+	printf("%d\n",funcaoHashingA(funcionarios[0].matricula,QTD_POSICAO_A));
 	exibirInfo(funcionarios[0]);
 
 	return 0;
