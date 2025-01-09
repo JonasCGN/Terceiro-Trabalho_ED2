@@ -214,11 +214,12 @@ int main(){
 	Funcionario funcionarios[QTD_FUNC];
 	
 	geraFuncionarios(funcionarios);
-	// exibirFuncionarios(funcionarios);
 
+	printf("Teste A\n");
 	testeA(funcionarios,QTD_POSICAO_A);
 	testeA(funcionarios,QTD_POSICAO_B);
 
+	printf("Teste B\n");
 	testeB(funcionarios,QTD_POSICAO_A);
 	testeB(funcionarios,QTD_POSICAO_B);
 
