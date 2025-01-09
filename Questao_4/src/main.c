@@ -130,12 +130,43 @@ int colisaoB(int num){
 	return num + 7;
 }
 
-// int funcaoHashingB(TabHash *tab,Funcionario funcionario,int tamanho){
-	// 	(b) Função Hashing: fole shift com 3 dígitos da seguinte forma: o 1o, 3 e 6o; 2o, 4o e 5o, depois obtenha o
-	// resto da divisão do resultado pelo tamanho do vetor destino. As colisões devem ser realizadas somando
-	// 7 ao valor obtido.
-	// return foldShift(funcionario.matricula) % tamanho;
-// }
+int colisaoResolverB(TabHash *tab,Funcionario funcionario,int hash,int tamanho,int *inseriu){
+	int quant=0;
+
+	if(hash < tamanho){
+		if(tab->hash[hash] == -1){
+			tab->funcionarios[hash] = funcionario;
+			tab->hash[hash] = hash;
+			*inseriu = 1;
+		}else{
+			quant += 1 + colisaoResolverB(tab,funcionario,colisaoB(hash),tamanho,inseriu);
+		}
+	}
+
+	return quant;
+}
+
+// 	(b) Função Hashing: fole shift com 3 dígitos da seguinte forma: o 1o, 3 e 6o; 2o, 4o e 5o, depois obtenha o
+// resto da divisão do resultado pelo tamanho do vetor destino. As colisões devem ser realizadas somando
+// 7 ao valor obtido.
+int funcaoHashingB(TabHash *tab,Funcionario funcionario,int tamanho){
+	char temp[6];
+	int quant = 0,inseriu = 0;
+
+	strcpy(temp,funcionario.matricula);
+	
+
+	int posicao = foldShift(temp);
+
+	quant = colisaoResolverB(tab,funcionario,posicao,tamanho,&inseriu);
+
+	if(!inseriu){
+		tab->funcionarios[posicao] = funcionario;
+		tab->hash[posicao] = posicao;
+	}
+
+	return quant;
+}
 
 void testeA(Funcionario *funcionarios,int tamanho){
 	TabHash tabela;
@@ -158,6 +189,27 @@ void testeA(Funcionario *funcionarios,int tamanho){
 	printf("Total Colisao: %d\n\n",quant);
 }
 
+void testeB(Funcionario *funcionarios,int tamanho){
+	TabHash tabela;
+	int quant = 0;
+	clock_t tempo_efetivar_hash = 0;
+
+	inicializaTabelaHash(&tabela,tamanho);
+
+	printf("Quantidade de posição %d\n", tamanho);
+	for(int i=0;i < QTD_FUNC;i++){
+		clock_t inicio = clock();
+		
+		quant += funcaoHashingB(&tabela,funcionarios[i],tamanho);
+
+		clock_t fim = clock();
+		tempo_efetivar_hash += (fim - inicio);
+	}
+	
+	printf("Tempo para efetivar: %f\n", (double) tempo_efetivar_hash / CLOCKS_PER_SEC);
+	printf("Total Colisao: %d\n\n",quant);
+}
+
 int main(){
 	Funcionario funcionarios[QTD_FUNC];
 	
@@ -166,6 +218,9 @@ int main(){
 
 	testeA(funcionarios,QTD_POSICAO_A);
 	testeA(funcionarios,QTD_POSICAO_B);
+
+	testeB(funcionarios,QTD_POSICAO_A);
+	testeB(funcionarios,QTD_POSICAO_B);
 
 	return 0;
 }
