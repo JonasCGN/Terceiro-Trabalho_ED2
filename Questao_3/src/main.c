@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define QTD_VERTICE 10
+#define QTD_VERTICE 8
 #define RAND_CAMINHO 101
 
 typedef struct grafo{
@@ -50,15 +50,37 @@ void iniciarGrafo(Grafo *grafo){
 	}
 }
 
-void criandoGrafo(Grafo *grafo){
-	for(int id=0;id<QTD_VERTICE;id++){
-		for(int aresta =id + 1;aresta < QTD_VERTICE;aresta++){
-			float confiabilidade = ((float)(rand() % RAND_CAMINHO) / 100);
-			grafo->arestas[id][aresta] = confiabilidade;
-			grafo->arestas[aresta][id] = confiabilidade;
-		}
-	}
+// void criandoGrafo(Grafo *grafo){
+// 	for(int id=0;id<QTD_VERTICE;id++){
+// 		for(int aresta =id + 1;aresta < QTD_VERTICE;aresta++){
+// 			float confiabilidade = ((float)(rand() % RAND_CAMINHO) / 100);
+// 			grafo->arestas[id][aresta] = confiabilidade;
+// 			grafo->arestas[aresta][id] = confiabilidade;
+// 		}
+// 	}
+// }
+
+void criandoGrafo(Grafo *grafo) {
+    // Valores fornecidos para cada aresta
+    float valores[QTD_VERTICE][QTD_VERTICE] = {
+        {0.000000, 0.700976, 0.809676, 0.088795, 0.121479, 0.348307, 0.421962, 0.699805},
+        {0.700976, 0.000000, 0.066384, 0.587482, 0.642966, 0.990603, 0.295718, 0.271337},
+        {0.809676, 0.066384, 0.000000, 0.069656, 0.949639, 0.382175, 0.322710, 0.988366},
+        {0.088795, 0.587482, 0.069656, 0.000000, 0.842522, 0.275314, 0.596627, 0.556420},
+        {0.121479, 0.642966, 0.949639, 0.842522, 0.000000, 0.847908, 0.184624, 0.397470},
+        {0.348307, 0.990603, 0.382175, 0.275314, 0.847908, 0.000000, 0.889763, 0.850481},
+        {0.421962, 0.295718, 0.322710, 0.596627, 0.184624, 0.889763, 0.000000, 0.317730},
+        {0.699805, 0.271337, 0.988366, 0.556420, 0.397470, 0.850481, 0.317730, 0.000000}
+    };
+
+    // Preenchendo a matriz do grafo com os valores fornecidos
+    for (int i = 0; i < QTD_VERTICE; i++) {
+        for (int j = 0; j < QTD_VERTICE; j++) {
+            grafo->arestas[i][j] = valores[i][j];
+        }
+    }
 }
+
 
 void atualizaDistancia(Distancia *distancia, Grafo grafo, int destino_atual, int destino_pos) {
     distancia[destino_pos].id = destino_pos;
@@ -68,7 +90,8 @@ void atualizaDistancia(Distancia *distancia, Grafo grafo, int destino_atual, int
         distancia[destino_pos].distancia = grafo.arestas[destino_atual][destino_pos];
     } else {
         distancia[destino_pos].distancia = distancia[destino_atual].distancia * grafo.arestas[destino_atual][destino_pos];
-    }
+        // distancia[destino_pos].distancia *= grafo.arestas[destino_atual][destino_pos];
+	}
 }
 
 Distancia *dijkstra(int ini, Grafo grafo){
@@ -81,7 +104,7 @@ Distancia *dijkstra(int ini, Grafo grafo){
 	}
 	distancia[ini].distancia = 1;
 
-	for(int destino_atual = ini; destino_atual < QTD_VERTICE;destino_atual++){
+	for(int destino_atual = 0; destino_atual < QTD_VERTICE;destino_atual++){
 		for(int destino_pos = 0;destino_pos < QTD_VERTICE;destino_pos++){
 
 			if(destino_atual != destino_pos){
@@ -102,48 +125,59 @@ Distancia *dijkstra(int ini, Grafo grafo){
 }
 
 void menorCaminho(int ini, int fim, Distancia *distancia) {
-    int caminho[QTD_VERTICE];
-    int pos = 0;
-    int atual = fim;
+	if((ini < QTD_VERTICE && fim < QTD_VERTICE)){
+		int caminho[QTD_VERTICE];
+		int pos = 0;
+		int atual = fim;
 
-    while (atual != ini && atual != -1) {
-        caminho[pos++] = atual;
-        atual = distancia[atual].predecessor;
-    }
+		while (atual != ini && atual != -1) {
+			caminho[pos++] = atual;
+			atual = distancia[atual].predecessor;
+		}
 
-    if (atual == ini) {
-        caminho[pos++] = ini;
-    }
+		if (atual == ini) {
+			caminho[pos++] = ini;
+		}
 
-    printf("Menor caminho de %d para %d: ", ini, fim);
-    for (int i = pos - 1; i >= 0; i--) {
-        printf("%d", caminho[i]);
-        if (i > 0) {
-            printf(" -> ");
-        }
-    }
-    printf("\n");
+		printf("Menor caminho de %d para %d: ", ini, fim);
+		for (int i = pos - 1; i >= 0; i--) {
+			printf("%d", caminho[i]);
+			if (i > 0) {
+				printf(" -> ");
+			}
+		}
+		printf("\n");
+	}else{
+		printf("Impossivel formar caminho\n");
+	}
 }
 
 int main(){
-	// srand((unsigned int)2);
+	srand((unsigned int)2);
 
 	Grafo grafo;
 	Distancia *distancia;
-	int ini=0,fim=9;
+	int ini=1,fim=7;
 
 	iniciarGrafo(&grafo);
 	criandoGrafo(&grafo);
+
+	// grafo.arestas[1][9] = 1;
+	// grafo.arestas[9][1] = 1;
+
+	// grafo.arestas[0][8] = 0.5;
+	// grafo.arestas[8][0] = 0.5;
+
 	exibirGrafo(grafo);
 
-	printf("Digite o numero de inicio:");
-	scanf("%d",&ini);
-	printf("Digite o numero de fim:");
-	scanf("%d",&fim);
+	// printf("Digite o numero de inicio:");
+	// scanf("%d",&ini);
+	// printf("Digite o numero de fim:");
+	// scanf("%d",&fim);
 
 	distancia = dijkstra(ini,grafo);
+	// exibeDistancia(distancia);
 	
-	exibeDistancia(distancia);
 	menorCaminho(ini,fim,distancia);
 	
 	free(distancia);
