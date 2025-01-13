@@ -45,94 +45,126 @@ int movimentoValido(Vertice vertice1, Vertice vertice2) {
 	return diferenca;
 }
 
-void gerarConfiguracoes(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]) {
-	for (int indiceConfiguracao = 0; indiceConfiguracao < CONFIGURACAO_MAXIMA; indiceConfiguracao++)
-		for (int indiceVizinho = 0; indiceVizinho < CONFIGURACAO_MAXIMA; indiceVizinho++)
-			matrizAdj[indiceConfiguracao][indiceVizinho] = 0;
-
-	int disco, numero_atribuido;
-	for (int indiceConfiguracao = 0; indiceConfiguracao < CONFIGURACAO_MAXIMA; indiceConfiguracao++) {
-		numero_atribuido = indiceConfiguracao;
-		for (disco = 0; disco < NUM_DISCOS; disco++) {
-			grafo[indiceConfiguracao].configuracao[disco] = numero_atribuido % NUM_PINOS + 1;
-			numero_atribuido /= NUM_PINOS;
-		}
-	}
-
-	for (int indiceAtual = 0; indiceAtual < CONFIGURACAO_MAXIMA; indiceAtual++)
-		for (int indiceVizinho = 0; indiceVizinho < CONFIGURACAO_MAXIMA; indiceVizinho++)
-			if (movimentoValido(grafo[indiceAtual], grafo[indiceVizinho]))
-				matrizAdj[indiceAtual][indiceVizinho] = 1;
-			else
-				matrizAdj[indiceAtual][indiceVizinho] = 0;
+void gerarConfiguracoes(Vertice *grafo) {
+    for (int indiceAtual = 0; indiceAtual < CONFIGURACAO_MAXIMA; indiceAtual++) {
+        int numeroAtribuido = indiceAtual;
+		
+        for (int disco = 0; disco < NUM_DISCOS; disco++) {
+            grafo[indiceAtual].configuracao[disco] = numeroAtribuido % NUM_PINOS + 1;
+            numeroAtribuido /= NUM_PINOS;
+        }
+    }
 }
 
-void djcastra(int inicio, int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], int *distancias, int *predecessor) {
-	int visitados[CONFIGURACAO_MAXIMA];
+void gerarMatrizAdjacencia(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]) {
+    for (int i = 0; i < CONFIGURACAO_MAXIMA; i++) {
+        for (int j = 0; j < CONFIGURACAO_MAXIMA; j++) {
+            if (movimentoValido(grafo[i], grafo[j])) {
+                matrizAdj[i][j] = 1;
+            }else {
+                matrizAdj[i][j] = 0;
+            }
+        }
+    }
+}
 
-	for (int configuracao_atual = 0; configuracao_atual < CONFIGURACAO_MAXIMA; configuracao_atual++) {
-		distancias[configuracao_atual] = INFINITO;
-		visitados[configuracao_atual] = 0;
-		predecessor[configuracao_atual] = -1;
+
+void exibir_config(Vertice *vertice) {
+	for (int config_atual = 0; config_atual < CONFIGURACAO_MAXIMA; ++config_atual) {
+	    printf("vertex %d: ", config_atual);
+		exibeVertice(vertice[config_atual]);
+		printf("\n");
 	}
-	distancias[inicio] = 0;
+}
 
-	int vertice_menor_distancia;
-	int configuracao_atual = 0;
-	do {
-		vertice_menor_distancia = -1;
+void exibeVertice(Vertice vertice){
+	for (int disco_atual = 0; disco_atual < NUM_DISCOS; disco_atual++)
+		printf("%d ", vertice.configuracao[disco_atual]);
+}
 
-		for (int i = 0; i < CONFIGURACAO_MAXIMA - 1; i++)
-			if (!visitados[i] && (vertice_menor_distancia == -1 || distancias[i] < distancias[vertice_menor_distancia]))
-				vertice_menor_distancia = i;
+void atualizaDistancia(Distancia *distancia, int grafo[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], int destino_atual, int destino_pos) {
+    distancia[destino_pos].id = destino_pos;
+    distancia[destino_pos].predecessor = destino_atual;
+	distancia[destino_pos].distancia = distancia[destino_atual].distancia + grafo[destino_atual][destino_pos];
+}
 
-		if (!(vertice_menor_distancia == -1 || distancias[vertice_menor_distancia] == INFINITO)) {
-			visitados[vertice_menor_distancia] = 1;
+void dijkstra(int ini, int grafo[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], Distancia *distancia) {
+    int visitados[CONFIGURACAO_MAXIMA] = {0}; // Indica se o nó foi visitado
 
-			for (int v = 0; v < CONFIGURACAO_MAXIMA; v++) {
-				if (!visitados[v] && matrizAdj[vertice_menor_distancia][v] &&
-					distancias[vertice_menor_distancia] != INFINITO &&
-					distancias[vertice_menor_distancia] + matrizAdj[vertice_menor_distancia][v] < distancias[v]) {
-					distancias[v] = distancias[vertice_menor_distancia] + matrizAdj[vertice_menor_distancia][v];
-					predecessor[v] = vertice_menor_distancia;
+    for (int i = 0; i < CONFIGURACAO_MAXIMA; i++) {
+        distancia[i].id = i;
+        distancia[i].distancia = INFINITO;
+        distancia[i].predecessor = -1;
+    }
+    distancia[ini].distancia = 0;
+    distancia[ini].predecessor = ini;
+
+	int config_menor;
+  	int config_atual = 0;
+
+    do{
+		config_menor = -1;
+
+		for(int i = 0; i < CONFIGURACAO_MAXIMA - 1; i++){
+			if (!visitados[i] && (config_menor == -1 || distancia[i].distancia < distancia[config_menor].distancia))
+				config_menor = i;
+		}
+
+		if (!(config_menor == -1 || distancia[config_menor].distancia == INFINITO)){
+			visitados[config_menor] = 1;
+
+			for (int v = 0; v < CONFIGURACAO_MAXIMA; v++){
+				if (!visitados[v] && grafo[config_menor][v] && 
+					distancia[config_menor].distancia != INFINITO && 
+					distancia[config_menor].distancia + grafo[config_menor][v] < distancia[v].distancia){
+					atualizaDistancia(distancia,grafo,config_menor,v);
 				}
 			}
 		}
+			
+		config_atual++;
 
-		configuracao_atual++;
-	} while (configuracao_atual < CONFIGURACAO_MAXIMA - 1 && vertice_menor_distancia != -1);
+	}while(config_atual < CONFIGURACAO_MAXIMA - 1 && config_menor != -1);
 }
 
-void exibir_caminho(int inicio, int fim, int *distancias, int *predecessor) {
-	if (distancias[fim] == INFINITO) {
-		printf("Não há caminho acessível de %d para %d.\n", inicio, fim);
-	} else {
-		printf("Menor caminho de %d para %d: %d\n", inicio, fim, distancias[fim]);
-
-		printf("Caminho: ");
+void menorCaminho(int ini, int fim, Distancia *distancia) {
+	if((ini < CONFIGURACAO_MAXIMA && fim < CONFIGURACAO_MAXIMA)){
 		int caminho[CONFIGURACAO_MAXIMA];
-		int indice = 0;
+		int pos = 0;
 		int atual = fim;
 
-		while (atual != -1) {
-			caminho[indice++] = atual;
-			atual = predecessor[atual];
+		while (atual != ini && atual != -1) {
+			caminho[pos++] = atual;
+			atual = distancia[atual].predecessor;
 		}
 
-		for (int caminhoIndice = indice - 1; caminhoIndice >= 0; caminhoIndice--) {
-			printf("%d", caminho[caminhoIndice]);
-			if (caminhoIndice > 0)
+		if (atual == ini) {
+			caminho[pos++] = ini;
+		}
+
+		printf("Menor caminho de %d para %d: ", ini, fim);
+		for (int i = pos - 1; i >= 0; i--) {
+			printf("%d", caminho[i]);
+			// exibeVertice(vertice[caminho[i]]);
+			if (i > 0) {
 				printf(" -> ");
+			}
 		}
 		printf("\n");
+	}else{
+		printf("Não é possível encontrar um caminho de %d para %d.\n", ini, fim);
 	}
 }
 
-void exibir_config(Vertice *vetice) {
-	for (int config_atual = 0; config_atual < CONFIGURACAO_MAXIMA; ++config_atual) {
-	    printf("vertex %d: ", config_atual);
-		for (int disco_atual = 0; disco_atual < NUM_DISCOS; disco_atual++)
-			printf("%d ", vetice[config_atual].configuracao[disco_atual]);
-		printf("\n");
+void exibeInfoDistancia(Distancia distancia){
+	printf("Vertice atual: %d\n", distancia.id);
+	printf("Distancia: %d\n", distancia.distancia);
+	printf("Predecessor: %d\n", distancia.predecessor);
+}
+
+void exibeDistancia(Distancia *distancia){
+	for(int i=0;i<CONFIGURACAO_MAXIMA;i++){
+		printf("Vertice: %d\n",i);
+		exibeInfoDistancia(distancia[i]);
 	}
 }

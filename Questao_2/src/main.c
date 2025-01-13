@@ -1,11 +1,11 @@
 #include "./functions/bellman.h"
 
-int main()
-{
+int main(){
     Vertice grafo[CONFIGURACAO_MAXIMA];
     int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA];
 
-    gerarConfiguracoes(grafo, matrizAdj);
+    gerarConfiguracoes(grafo);
+    gerarMatrizAdjacencia(grafo,matrizAdj);
     exibir_config(grafo);
 
     int inicial, final;
@@ -17,15 +17,14 @@ int main()
     int distancias[CONFIGURACAO_MAXIMA];
     int antecessor[CONFIGURACAO_MAXIMA];
 
-      clock_t inicio, fim;
-      inicio = clock();
-      fordMooreBellman(inicial, matrizAdj, distancias, antecessor);
-      fim = clock();
+	clock_t inicio, fim;
+	inicio = clock();
+	fordMooreBellman(inicial, matrizAdj, distancias, antecessor);
+	fim = clock();
 
-      exibir_caminho(inicial, final, distancias, antecessor);
+	exibir_caminho(inicial, final, distancias, antecessor);
 
-      double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    
+	double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
 
     printf("Tempo do algoritmo de dijkshtra: %f segundos\n", tempo);
     return 0;

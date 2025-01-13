@@ -1,9 +1,12 @@
 {
     "files.associations": {
+        "*.ndjson": "jsonl",
+        "*.dbclient-js": "javascript",
         "hanoi.h": "c",
         "time.h": "c",
         "stdbool.h": "c",
         "stdio.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "limits.h": "c"
     }
 }

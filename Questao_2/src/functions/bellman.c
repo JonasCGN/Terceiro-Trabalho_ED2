@@ -45,26 +45,26 @@ int movimentoValido(Vertice vertice1, Vertice vertice2) {
 	return diferenca;
 }
 
-void gerarConfiguracoes(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]) {
-	for (int indiceConfiguracao = 0; indiceConfiguracao < CONFIGURACAO_MAXIMA; indiceConfiguracao++)
-		for (int indiceVizinho = 0; indiceVizinho < CONFIGURACAO_MAXIMA; indiceVizinho++)
-			matrizAdj[indiceConfiguracao][indiceVizinho] = 0;
+void gerarConfiguracoes(Vertice *grafo) {
+    for (int indiceAtual = 0; indiceAtual < CONFIGURACAO_MAXIMA; indiceAtual++) {
+        int numeroAtribuido = indiceAtual;
+        for (int disco = 0; disco < NUM_DISCOS; disco++) {
+            grafo[indiceAtual].configuracao[disco] = numeroAtribuido % NUM_PINOS + 1;
+            numeroAtribuido /= NUM_PINOS;
+        }
+    }
+}
 
-	int disco, numero_atribuido;
-	for (int indiceConfiguracao = 0; indiceConfiguracao < CONFIGURACAO_MAXIMA; indiceConfiguracao++) {
-		numero_atribuido = indiceConfiguracao;
-		for (disco = 0; disco < NUM_DISCOS; disco++) {
-			grafo[indiceConfiguracao].configuracao[disco] = numero_atribuido % NUM_PINOS + 1;
-			numero_atribuido /= NUM_PINOS;
-		}
-	}
-
-	for (int indiceAtual = 0; indiceAtual < CONFIGURACAO_MAXIMA; indiceAtual++)
-		for (int indiceVizinho = 0; indiceVizinho < CONFIGURACAO_MAXIMA; indiceVizinho++)
-			if (movimentoValido(grafo[indiceAtual], grafo[indiceVizinho]))
-				matrizAdj[indiceAtual][indiceVizinho] = 1;
-			else
-				matrizAdj[indiceAtual][indiceVizinho] = 0;
+void gerarMatrizAdjacencia(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]) {
+    for (int i = 0; i < CONFIGURACAO_MAXIMA; i++) {
+        for (int j = 0; j < CONFIGURACAO_MAXIMA; j++) {
+            if(movimentoValido(grafo[i], grafo[j])) {
+                matrizAdj[i][j] = 1;
+            } else {
+                matrizAdj[i][j] = 0;
+            }
+        }
+    }
 }
 
 void fordMooreBellman(int inicio, int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], int distancia[], int antessesor[]){
@@ -78,14 +78,18 @@ void fordMooreBellman(int inicio, int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACA
     int isUpdated = 1;
     for (int i = 0; i < CONFIGURACAO_MAXIMA - 1 && isUpdated; ++i){
         isUpdated = 0;
-        for (int j = 0; j < CONFIGURACAO_MAXIMA; ++j)
-            if (distancia[j] != INFINITO)
-                for (int k = 0; k < CONFIGURACAO_MAXIMA; k++)
+		
+        for (int j = 0; j < CONFIGURACAO_MAXIMA; ++j){
+            if (distancia[j] != INFINITO){
+                for (int k = 0; k < CONFIGURACAO_MAXIMA; k++){
 					if (matrizAdj[j][k] != 0 && distancia[j] + matrizAdj[j][k] < distancia[k]){
 						distancia[k] = distancia[j] + matrizAdj[j][k];
 						antessesor[k] = j;
 						isUpdated = 1;
 					}
+				}
+			}
+		}
     }
 
 }
@@ -95,9 +99,8 @@ void exibir_caminho(int inicio, int fim, int *distancias, int *predecessor) {
 	if (distancias[fim] == INFINITO) {
 		printf("Não há caminho acessível de %d para %d.\n", inicio, fim);
 	} else {
-		printf("Menor caminho de %d para %d: %d\n", inicio, fim, distancias[fim]);
 
-		printf("Caminho: ");
+		printf("Menor caminho de %d para %d: ",inicio, fim);
 		int caminho[CONFIGURACAO_MAXIMA];
 		int indice = 0;
 		int atual = fim;

@@ -14,8 +14,19 @@ typedef struct{
     int configuracao[NUM_DISCOS];
 } Vertice;
 
+typedef struct {
+    int id;
+    int distancia;
+    int predecessor;
+} Distancia;
+
 int movimentoValido(Vertice vertice1, Vertice vertice2);
-void gerarConfiguracoes(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]);
-void djcastra(int inicio,  int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], int *distancias, int *predecessor);
-void exibir_caminho(int inicio, int fim, int *distancias, int *predecessor);
+void gerarConfiguracoes(Vertice *grafo);
+void gerarMatrizAdjacencia(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]);
+
 void exibir_config(Vertice *vetice);
+void exibeVertice(Vertice vertice);
+
+void dijkstra(int ini, int vertice[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA],Distancia *distancia);
+void menorCaminho(int ini, int fim, Distancia *distancia);
+void exibeDistancia(Distancia *distancia);

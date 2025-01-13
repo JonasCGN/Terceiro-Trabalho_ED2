@@ -15,7 +15,9 @@ typedef struct{
 } Vertice;
 
 int movimentoValido(Vertice vertice1, Vertice vertice2);
-void gerarConfiguracoes(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]);
-void fordMooreBellman(int inicio,  int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], int *distancias, int *predecessor);
+void gerarConfiguracoes(Vertice *grafo);
+void gerarMatrizAdjacencia(Vertice *grafo, int matrizAdj[][CONFIGURACAO_MAXIMA]);
+
+void fordMooreBellman(int inicio, int matrizAdj[CONFIGURACAO_MAXIMA][CONFIGURACAO_MAXIMA], int distaencia[], int antessesor[]);
 void exibir_caminho(int inicio, int fim, int *distancias, int *predecessor);
 void exibir_config(Vertice *vetice);
